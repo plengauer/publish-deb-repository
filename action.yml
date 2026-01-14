@@ -50,7 +50,7 @@ runs:
           do_hash "MD5Sum" "md5sum"
           do_hash "SHA1" "sha1sum"
           do_hash "SHA256" "sha256sum"
-        } > dists/stable/Release
+        } > Release
     - uses: actions/upload-pages-artifact@v4.0.0
       with:
         path: .
