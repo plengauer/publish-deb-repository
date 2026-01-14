@@ -11,11 +11,19 @@ runs:
     id-token: write
   steps:
     - shell: bash
+      run: mkdir -p dists/stable/main/binary-all pool/main
+    - shell: bash
       env:
         GH_TOKEN: ${{ inputs.github_token }}
+      run: cat <<< "${{ inputs.source }}" | tr ',' '\n' | tr ';' '\n' | xargs -I '{}' gh api /repos/'{}'/releases --paginate | jq '.[] | .assets[] | select(.name | endswith(".deb")) | .browser_download_url' -c | PWD=$(pwd)/pool/main xargs wget -nc
+    - shell: bash
+      run: dpkg-scanpackages --multiversion . > dists/stable/main/binary-all/Packages
+    - shell: bash
+      run: gzip -9 < dists/stable/main/binary-all/Packages > dists/stable/main/binary-all/Packages.gz
+    - shell: bash
       run: |
-        create_release() {
-          cd "$1"
+        cd dists/stable
+        {
           do_hash() {
               HASH_NAME=$1
               HASH_CMD=$2
@@ -42,13 +50,7 @@ runs:
           do_hash "MD5Sum" "md5sum"
           do_hash "SHA1" "sha1sum"
           do_hash "SHA256" "sha256sum"
-        }
-        
-        mkdir -p dists/stable/main/binary-all pool/main
-        cat <<< "${{ inputs.source }}" | tr ',' '\n' | tr ';' '\n' | xargs -I '{}' gh api /repos/'{}'/releases --paginate | jq '.[] | .assets[] | select(.name | endswith(".deb")) | .browser_download_url' -c | PWD=$(pwd)/pool/main xargs wget -nc
-        dpkg-scanpackages --multiversion . > dists/stable/main/binary-all/Packages
-        gzip -9 < dists/stable/main/binary-all/Packages > dists/stable/main/binary-all/Packages.gz
-        create_release dists/stable > dists/stable/Release
+        } > dists/stable/Release
     - uses: actions/upload-pages-artifact@v4.0.0
       with:
         path: .
