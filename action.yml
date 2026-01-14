@@ -4,8 +4,6 @@ inputs:
     default: ${{ github.token }}
   source:
     default: ${{ github.repository }}
-  debug:
-    default: ${{ runner.debug }}
 runs:
   using: composite
   steps:
@@ -53,13 +51,3 @@ runs:
           do_hash "SHA1" "sha1sum"
           do_hash "SHA256" "sha256sum"
         } > Release
-    - if: ${{ inputs.debug != '' }}
-      shell: bash
-      run: find . -iname '*.deb'
-    - if: ${{ inputs.debug != '' }}
-      shell: bash
-      run: cat dists/stable/main/binary-all/Packages
-    - uses: actions/upload-pages-artifact@v4.0.0
-      with:
-        path: .
-    - uses: actions/deploy-pages@v4.0.5
