@@ -6,9 +6,6 @@ inputs:
     default: ${{ github.repository }}
 runs:
   using: composite
-  permissions:
-    pages: write
-    id-token: write
   steps:
     - shell: bash
       run: mkdir -p dists/stable/main/binary-all pool/main
