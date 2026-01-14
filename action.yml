@@ -15,7 +15,7 @@ runs:
     - shell: bash
       env:
         GH_TOKEN: ${{ inputs.github_token }}
-      run: cat <<< "${{ inputs.source }}" | tr ',' '\n' | tr ';' '\n' | xargs -I '{}' gh api /repos/'{}'/releases --paginate | jq '.[] | .assets[] | select(.name | endswith(".deb")) | .browser_download_url' -c | PWD=$(pwd)/pool/main xargs wget -nc
+      run: cat <<< "${{ inputs.source }}" | tr ',' '\n' | tr ';' '\n' | xargs -I '{}' gh api /repos/'{}'/releases --paginate | jq '.[] | .assets[] | select(.name | endswith(".deb")) | .browser_download_url' -c --unbuffered | PWD=$(pwd)/pool/main xargs wget -nc
     - shell: bash
       run: dpkg-scanpackages --multiversion . > dists/stable/main/binary-all/Packages
     - shell: bash
